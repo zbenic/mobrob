@@ -2,62 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="de54b41e-71d8-4f5e-854f-bad51df69942" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/gymfc.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gymfc.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/iris_RL.py" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/iris_RL.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/envs/assets/gazebo/models/quadcopter_model/model.sdf" beforeDir="false" afterPath="$PROJECT_DIR$/envs/assets/gazebo/models/quadcopter_model/model.sdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/envs/assets/gazebo/plugins/QuadcopterWorldPlugin.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/envs/assets/gazebo/plugins/QuadcopterWorldPlugin.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/envs/assets/gazebo/plugins/QuadcopterWorldPlugin.hh" beforeDir="false" afterPath="$PROJECT_DIR$/envs/assets/gazebo/plugins/QuadcopterWorldPlugin.hh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/envs/assets/gazebo/plugins/build/libQuadcopterWorldPlugin.so" beforeDir="false" afterPath="$PROJECT_DIR$/envs/assets/gazebo/plugins/build/libQuadcopterWorldPlugin.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/envs/assets/gazebo/worlds/takeoff-iris.world" beforeDir="false" afterPath="$PROJECT_DIR$/envs/assets/gazebo/worlds/takeoff-iris.world" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/envs/gazebo_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/envs/gazebo_env.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/envs/takeoff_control_env.py" beforeDir="false" afterPath="$PROJECT_DIR$/envs/takeoff_control_env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/envs/assets/gazebo/start_attitude_gazebo.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/envs/assets/gazebo/start_liftoff_gazebo (copy).sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/envs/assets/gazebo/start_takeoff_gazebo.sh" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="FUSProjectUsageTrigger">
-    <session id="2103929062">
-      <usages-collector id="statistics.lifecycle.project">
-        <counts>
-          <entry key="project.closed" value="11" />
-          <entry key="project.open.time.0" value="1" />
-          <entry key="project.open.time.1" value="3" />
-          <entry key="project.open.time.14" value="2" />
-          <entry key="project.open.time.2" value="1" />
-          <entry key="project.open.time.5" value="1" />
-          <entry key="project.open.time.7" value="3" />
-          <entry key="project.open.time.8" value="2" />
-          <entry key="project.open.time.9" value="4" />
-          <entry key="project.opened" value="17" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.extensions.edit">
-        <counts>
-          <entry key="Python Console" value="111" />
-          <entry key="py" value="2506" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.types.edit">
-        <counts>
-          <entry key="Python" value="2617" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.types.open">
-        <counts>
-          <entry key="Python" value="20" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.extensions.open">
-        <counts>
-          <entry key="py" value="20" />
-        </counts>
-      </usages-collector>
-    </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
@@ -93,30 +48,29 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/anaconda3/lib/python3.6/site-packages/torch/nn/functional.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15180">
+            <state relative-caret-position="544">
               <caret line="1025" selection-start-line="1025" selection-end-line="1025" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/envs/takeoff_control_env.py">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/envs/gazebo_env.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="690">
-              <caret line="46" column="23" selection-start-line="46" selection-start-column="23" selection-end-line="46" selection-end-column="23" />
+            <state relative-caret-position="1974">
+              <caret line="180" column="47" selection-start-line="180" selection-start-column="47" selection-end-line="180" selection-end-column="47" />
               <folding>
-                <element signature="e#0#11#0" expanded="true" />
-                <marker date="1535567553876" expanded="true" signature="546:551" ph="..." />
+                <element signature="e#0#10#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/controllers/DQN.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="198">
-              <caret line="65" column="17" lean-forward="true" selection-start-line="65" selection-start-column="17" selection-end-line="65" selection-end-column="17" />
+              <caret line="65" column="17" selection-start-line="65" selection-start-column="17" selection-end-line="65" selection-end-column="17" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
                 <marker date="1533239441074" expanded="true" signature="1524:1529" ph="..." />
@@ -171,7 +125,7 @@
     </dirStrings>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -199,62 +153,12 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="gymfc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="gymfc" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="gymfc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="gymfc" type="462c0819:PsiDirectoryNode" />
-              <item name="controllers" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="gymfc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="gymfc" type="462c0819:PsiDirectoryNode" />
-              <item name="envs" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="gymfc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
-            </path>
-            <path>
-              <item name="gymfc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
-              <item name="&lt; Python 3.6 &gt;" type="70bed36:NamedLibraryElementNode" />
-            </path>
-            <path>
-              <item name="gymfc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
-              <item name="&lt; Python 3.6 &gt;" type="70bed36:NamedLibraryElementNode" />
-              <item name="gymfc" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="gymfc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
-              <item name="&lt; Python 3.6 &gt;" type="70bed36:NamedLibraryElementNode" />
-              <item name="gymfc" type="462c0819:PsiDirectoryNode" />
-              <item name="gymfc" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="gymfc" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
-              <item name="&lt; Python 3.6 &gt;" type="70bed36:NamedLibraryElementNode" />
-              <item name="gymfc" type="462c0819:PsiDirectoryNode" />
-              <item name="gymfc" type="462c0819:PsiDirectoryNode" />
-              <item name="controllers" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
+      <pane id="ProjectPane" />
       <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../RL-Quadcopter" />
+    <property name="last_opened_file_path" value="$USER_HOME$/RL-Quadcopter" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
@@ -283,11 +187,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../../pytorch/tools/autograd" />
+      <option name="WORKING_DIRECTORY" value="$USER_HOME$/pytorch/tools/autograd" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../../pytorch/tools/autograd/gen_autograd.py" />
+      <option name="SCRIPT_NAME" value="$USER_HOME$/pytorch/tools/autograd/gen_autograd.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -346,11 +250,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="/pyvenv/bin/python" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../../pytorch" />
+      <option name="WORKING_DIRECTORY" value="$USER_HOME$/pytorch" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../../pytorch/setup.py" />
+      <option name="SCRIPT_NAME" value="$USER_HOME$/pytorch/setup.py" />
       <option name="PARAMETERS" value="--install" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -401,16 +305,13 @@
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Terminal" order="7" />
-      <window_info anchor="bottom" id="Event Log" order="8" sideWeight="0.5032751" side_tool="true" visible="true" weight="0.32867885" />
+      <window_info anchor="bottom" id="Event Log" order="8" sideWeight="0.50382096" side_tool="true" visible="true" weight="0.32832617" />
       <window_info anchor="bottom" id="Version Control" order="9" />
-      <window_info active="true" anchor="bottom" id="Python Console" order="10" sideWeight="0.4967249" visible="true" weight="0.32867885" />
+      <window_info active="true" anchor="bottom" id="Python Console" order="10" sideWeight="0.49617904" visible="true" weight="0.32832617" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout>
-  </component>
-  <component name="VcsContentAnnotationSettings">
-    <option name="myLimit" value="2678400000" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -490,20 +391,8 @@
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file:///media/kizo/6224CEB624CE8D0B/FSB/Poslijediplomski studij/Quadrotor/Python_model/parrot_model_hybrid_PID_class.py" />
-    <entry file="file://$PROJECT_DIR$/../../pytorch/tools/autograd/gen_autograd.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="555">
-          <caret line="37" column="32" selection-start-line="14" selection-start-column="19" selection-end-line="14" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../../pytorch/setup.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="24" column="44" selection-start-line="24" selection-start-column="44" selection-end-line="24" selection-end-column="44" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/pytorch/tools/autograd/gen_autograd.py" />
+    <entry file="file://$USER_HOME$/pytorch/setup.py" />
     <entry file="file:///var/git/gymfc/gymfc/controllers/pid.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="390">
@@ -566,16 +455,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/envs/gazebo_env.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2700">
-          <caret line="180" column="47" selection-start-line="180" selection-start-column="47" selection-end-line="180" selection-end-column="47" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/anaconda3/lib/python3.6/site-packages/gym/spaces/box.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="150">
@@ -608,24 +487,6 @@
     <entry file="file://$PROJECT_DIR$/controllers/takeoff_scenario_main.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$USER_HOME$/anaconda3/lib/python3.6/site-packages/torch/nn/functional.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15180">
-          <caret line="1025" selection-start-line="1025" selection-end-line="1025" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/envs/takeoff_control_env.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="690">
-          <caret line="46" column="23" selection-start-line="46" selection-start-column="23" selection-end-line="46" selection-end-column="23" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-            <marker date="1535567553876" expanded="true" signature="546:551" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/controllers/iris_pid_eval.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3645">
@@ -646,11 +507,38 @@
     <entry file="file://$PROJECT_DIR$/controllers/DQN.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="198">
-          <caret line="65" column="17" lean-forward="true" selection-start-line="65" selection-start-column="17" selection-end-line="65" selection-end-column="17" />
+          <caret line="65" column="17" selection-start-line="65" selection-start-column="17" selection-end-line="65" selection-end-column="17" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
             <marker date="1533239441074" expanded="true" signature="1524:1529" ph="..." />
             <marker date="1533239441074" expanded="true" signature="3319:3327" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/envs/takeoff_control_env.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1121">
+          <caret line="46" column="23" selection-start-line="46" selection-start-column="23" selection-end-line="46" selection-end-column="23" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/anaconda3/lib/python3.6/site-packages/torch/nn/functional.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="544">
+          <caret line="1025" selection-start-line="1025" selection-end-line="1025" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/envs/gazebo_env.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1974">
+          <caret line="180" column="47" selection-start-line="180" selection-start-column="47" selection-end-line="180" selection-end-column="47" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>
