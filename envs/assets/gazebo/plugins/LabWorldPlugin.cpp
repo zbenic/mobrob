@@ -50,7 +50,7 @@ typedef SSIZE_T ssize_t;
 #include <gazebo/transport/transport.hh>
 #include <gazebo/physics/Base.hh>
 
-#include "QuadcopterWorldPlugin.hh"
+#include "LabWorldPlugin.hh"
 
 using namespace gazebo;
 
@@ -75,15 +75,15 @@ bool getSdfParam(sdf::ElementPtr _sdf, const std::string &_name,
   _param = _defaultValue;
   if (_verbose)
   {
-    gzerr << "[QuadcopterWorldPlugin] Please specify a value for parameter ["
+    gzerr << "[LabWorldPlugin] Please specify a value for parameter ["
       << _name << "].\n";
   }
   return false;
 }
 
-GZ_REGISTER_WORLD_PLUGIN(QuadcopterWorldPlugin)
+GZ_REGISTER_WORLD_PLUGIN(LabWorldPlugin)
 
-QuadcopterWorldPlugin::QuadcopterWorldPlugin() 
+LabWorldPlugin::LabWorldPlugin() 
 {
   // socket
   this->handle = socket(AF_INET, SOCK_DGRAM /*SOCK_STREAM*/, 0);
@@ -106,7 +106,7 @@ QuadcopterWorldPlugin::QuadcopterWorldPlugin()
     return;
   }
 
-  this->arduCopterOnline = false;
+  this->mobrobOnline = false;
 
   this->connectionTimeoutCount = 0;
 
@@ -123,12 +123,12 @@ QuadcopterWorldPlugin::QuadcopterWorldPlugin()
   #endif
 
 }
-QuadcopterWorldPlugin::~QuadcopterWorldPlugin()
+LabWorldPlugin::~LabWorldPlugin()
 {
 	  // Sleeps (pauses the destructor) until the thread has finished
 	  _callback_loop_thread.join();
 }
-void QuadcopterWorldPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
+void LabWorldPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
 
   this->_world = _world;
@@ -141,11 +141,11 @@ void QuadcopterWorldPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   // Controller time control.
   this->lastControllerUpdateTime = 0;
 
-  gzlog << "Quadcopter ready to fly. The force will be with you" << "\n";
-  _callback_loop_thread = boost::thread( boost::bind( &QuadcopterWorldPlugin::loop_thread,this ) );
+  gzlog << "MobRob ready to roll." << "\n";
+  _callback_loop_thread = boost::thread( boost::bind( &LabWorldPlugin::loop_thread,this ) );
 }
 
-void QuadcopterWorldPlugin::processSDF(sdf::ElementPtr _sdf)
+void LabWorldPlugin::processSDF(sdf::ElementPtr _sdf)
 {
   // Get model name
   std::string modelName;
@@ -157,121 +157,121 @@ void QuadcopterWorldPlugin::processSDF(sdf::ElementPtr _sdf)
 	  return;
   }
 
-  // per rotor
-  if (_sdf->HasElement("rotor"))
+  // per wheelMotor
+  if (_sdf->HasElement("wheel"))
   {
-    sdf::ElementPtr rotorSDF = _sdf->GetElement("rotor");
+    sdf::ElementPtr wheelMotorSDF = _sdf->GetElement("wheel");
 
-    while (rotorSDF)
+    while (wheelMotorSDF)
     {
-      Rotor rotor;
-      if (rotorSDF->HasAttribute("id"))
+      WheelMotor wheelMotor;
+      if (wheelMotorSDF->HasAttribute("id"))
       {
-        rotor.id = rotorSDF->GetAttribute("id")->Get(rotor.id);
+        wheelMotor.id = wheelMotorSDF->GetAttribute("id")->Get(wheelMotor.id);
       }
       else
       {
-        rotor.id = this->rotors.size();
+        wheelMotor.id = this->wheelMotors.size();
         gzwarn << "id attribute not specified, use order parsed ["
-               << rotor.id << "].\n";
+               << wheelMotor.id << "].\n";
       }
 
-      if (rotorSDF->HasElement("jointName"))
+      if (wheelMotorSDF->HasElement("jointName"))
       {
-        rotor.jointName = rotorSDF->Get<std::string>("jointName");
+        wheelMotor.jointName = wheelMotorSDF->Get<std::string>("jointName");
       }
       else
       {
         gzerr << "Please specify a jointName,"
-          << " where the rotor is attached.\n";
+          << " where the wheelMotor is attached.\n";
       }
 
       // Get the pointer to the joint.
-      rotor.joint = this->_model->GetJoint(rotor.jointName);
-      if (rotor.joint == nullptr)
+      wheelMotor.joint = this->_model->GetJoint(wheelMotor.jointName);
+      if (wheelMotor.joint == nullptr)
       {
         gzerr << "Couldn't find specified joint ["
-            << rotor.jointName << "]. This plugin will not run.\n";
+            << wheelMotor.jointName << "]. This plugin will not run.\n";
         return;
       }
 
-      if (rotorSDF->HasElement("turningDirection"))
+      if (wheelMotorSDF->HasElement("turningDirection"))
       {
-        std::string turningDirection = rotorSDF->Get<std::string>(
+        std::string turningDirection = wheelMotorSDF->Get<std::string>(
             "turningDirection");
-        // special cases mimic from rotors_gazebo_plugins
+        // special cases mimic from wheelMotors_gazebo_plugins
         if (turningDirection == "cw")
-          rotor.multiplier = -1;
+          wheelMotor.multiplier = -1;
         else if (turningDirection == "ccw")
-          rotor.multiplier = 1;
+          wheelMotor.multiplier = 1;
         else
         {
           gzdbg << "not string, check turningDirection as float\n";
-          rotor.multiplier = rotorSDF->Get<double>("turningDirection");
+          wheelMotor.multiplier = wheelMotorSDF->Get<double>("turningDirection");
         }
       }
       else
       {
-        rotor.multiplier = 1;
+        wheelMotor.multiplier = 1;
         gzerr << "Please specify a turning"
           << " direction multiplier ('cw' or 'ccw'). Default 'ccw'.\n";
       }
 
-      getSdfParam<double>(rotorSDF, "rotorVelocitySlowdownSim",
-          rotor.rotorVelocitySlowdownSim, 1);
+      getSdfParam<double>(wheelMotorSDF, "motorVelocitySlowdownSim",
+          wheelMotor.motorVelocitySlowdownSim, 1);
 
-      if (ignition::math::equal(rotor.rotorVelocitySlowdownSim, 0.0))
+      if (ignition::math::equal(wheelMotor.motorVelocitySlowdownSim, 0.0))
       {
-        gzerr << "rotor for joint [" << rotor.jointName
-              << "] rotorVelocitySlowdownSim is zero,"
+        gzerr << "wheelMotor for joint [" << wheelMotor.jointName
+              << "] motorVelocitySlowdownSim is zero,"
               << " aborting plugin.\n";
         return;
       }
 
-      getSdfParam<double>(rotorSDF, "frequencyCutoff",
-          rotor.frequencyCutoff, rotor.frequencyCutoff);
-      getSdfParam<double>(rotorSDF, "samplingRate",
-          rotor.samplingRate, rotor.samplingRate);
+      getSdfParam<double>(wheelMotorSDF, "frequencyCutoff",
+          wheelMotor.frequencyCutoff, wheelMotor.frequencyCutoff);
+      getSdfParam<double>(wheelMotorSDF, "samplingRate",
+          wheelMotor.samplingRate, wheelMotor.samplingRate);
 
       // use ignition::math::Filter
-      rotor.velocityFilter.Fc(rotor.frequencyCutoff, rotor.samplingRate);
+      wheelMotor.velocityFilter.Fc(wheelMotor.frequencyCutoff, wheelMotor.samplingRate);
 
       // initialize filter to zero value
-      rotor.velocityFilter.Set(0.0);
+      wheelMotor.velocityFilter.Set(0.0);
 
       // note to use this
-      // rotorVelocityFiltered = velocityFilter.Process(rotorVelocityRaw);
+      // wheelMotorVelocityFiltered = velocityFilter.Process(wheelMotorVelocityRaw);
 
       // Overload the PID parameters if they are available.
       double param;
-      getSdfParam<double>(rotorSDF, "vel_p_gain", param, rotor.pid.GetPGain());
-      rotor.pid.SetPGain(param);
+      getSdfParam<double>(wheelMotorSDF, "vel_p_gain", param, wheelMotor.pid.GetPGain());
+      wheelMotor.pid.SetPGain(param);
 
-      getSdfParam<double>(rotorSDF, "vel_i_gain", param, rotor.pid.GetIGain());
-      rotor.pid.SetIGain(param);
+      getSdfParam<double>(wheelMotorSDF, "vel_i_gain", param, wheelMotor.pid.GetIGain());
+      wheelMotor.pid.SetIGain(param);
 
-      getSdfParam<double>(rotorSDF, "vel_d_gain", param,  rotor.pid.GetDGain());
-      rotor.pid.SetDGain(param);
+      getSdfParam<double>(wheelMotorSDF, "vel_d_gain", param,  wheelMotor.pid.GetDGain());
+      wheelMotor.pid.SetDGain(param);
 
-      getSdfParam<double>(rotorSDF, "vel_i_max", param, rotor.pid.GetIMax());
-      rotor.pid.SetIMax(param);
+      getSdfParam<double>(wheelMotorSDF, "vel_i_max", param, wheelMotor.pid.GetIMax());
+      wheelMotor.pid.SetIMax(param);
 
-      getSdfParam<double>(rotorSDF, "vel_i_min", param, rotor.pid.GetIMin());
-      rotor.pid.SetIMin(param);
+      getSdfParam<double>(wheelMotorSDF, "vel_i_min", param, wheelMotor.pid.GetIMin());
+      wheelMotor.pid.SetIMin(param);
 
-      getSdfParam<double>(rotorSDF, "vel_cmd_max", param,
-          rotor.pid.GetCmdMax());
-      rotor.pid.SetCmdMax(param);
+      getSdfParam<double>(wheelMotorSDF, "vel_cmd_max", param,
+          wheelMotor.pid.GetCmdMax());
+      wheelMotor.pid.SetCmdMax(param);
 
-      getSdfParam<double>(rotorSDF, "vel_cmd_min", param,
-          rotor.pid.GetCmdMin());
-      rotor.pid.SetCmdMin(param);
+      getSdfParam<double>(wheelMotorSDF, "vel_cmd_min", param,
+          wheelMotor.pid.GetCmdMin());
+      wheelMotor.pid.SetCmdMin(param);
 
       // set pid initial command
-      rotor.pid.SetCmd(0.0);
+      wheelMotor.pid.SetCmd(0.0);
 
-      this->rotors.push_back(rotor);
-      rotorSDF = rotorSDF->GetNextElement("rotor");
+      this->wheelMotors.push_back(wheelMotor);
+      wheelMotorSDF = wheelMotorSDF->GetNextElement("wheelMotor");
     }
   }
 
@@ -292,111 +292,69 @@ void QuadcopterWorldPlugin::processSDF(sdf::ElementPtr _sdf)
   }
 
   // base link contact sensor
-  std::string contactName;
-  getSdfParam<std::string>(_sdf, "contactName", contactName, "contact_sensor");
+  std::string contactNameChassis;
+  getSdfParam<std::string>(_sdf, "contactName", contactNameChassis, "contact_sensor_chassis");
   /*
-  std::string contactScopedName = this->_world->Name()
+  std::string contactScopedChassisName = this->_world->Name()
       + "::" + this->_model->GetScopedName() 
-      + "::" + contactName;
+      + "::" + contactNameChassis;
   */
-    std::string contactScopedName = this->_world->Name()
+    std::string contactScopedChassisName = this->_world->Name()
       + "::" + this->_model->GetScopedName() 
-      + "::quadcopter_takeoff_control::quadcopter::quadcopter_model::base_link::contact_sensor";
-  this->contactSensor = std::dynamic_pointer_cast<sensors::ContactSensor>
-    (sensors::SensorManager::Instance()->GetSensor(contactScopedName));
+      + "::MobRob::MobRob::chassis::contact_sensor_chassis";
+  this->contactSensorChassis = std::dynamic_pointer_cast<sensors::ContactSensor>
+    (sensors::SensorManager::Instance()->GetSensor(contactScopedChassisName));
 
-  if (!this->contactSensor)
+  if (!this->contactSensorChassis)
   {
-    gzerr << "contact_sensor [" << contactScopedName
-          << "] not found, abort Quadcopter plugin.\n" << "\n";
+    gzerr << "contact_sensor [" << contactScopedChassisName
+          << "] not found, abort MobRob plugin.\n" << "\n";
     return;
   }
   
-  // rotor 0 contact sensor
-  std::string contactNameRotor0;
-  getSdfParam<std::string>(_sdf, "contactName", contactNameRotor0, "rotor_0_contact_sensor");
+  // left wheel contact sensor
+  std::string contactNameWheelLeft;
+  getSdfParam<std::string>(_sdf, "contactName", contactNameWheelLeft, "contact_sensor_wheel_left");
   /*
-  std::string contactScopedNameRotor0 = this->_world->Name()
+  std::string contactScopedNameWheelLeft = this->_world->Name()
       + "::" + this->_model->GetScopedName() 
-      + "::" + contactNameRotor0;
+      + "::" + contactNameWheelLeft;
   */
-    std::string contactScopedNameRotor0 = this->_world->Name()
+    std::string contactScopedNameWheelLeft = this->_world->Name()
       + "::" + this->_model->GetScopedName() 
-      + "::quadcopter_takeoff_control::quadcopter::quadcopter_model::rotor_0::rotor_0_contact_sensor";
-  this->contactSensorRotor0 = std::dynamic_pointer_cast<sensors::ContactSensor>
-    (sensors::SensorManager::Instance()->GetSensor(contactScopedNameRotor0));
+      + "::MobRob::MobRob::left_wheel::contact_sensor_wheel_left";
+  this->contactSensorWheelLeft = std::dynamic_pointer_cast<sensors::ContactSensor>
+    (sensors::SensorManager::Instance()->GetSensor(contactScopedNameWheelLeft));
 
-  if (!this->contactSensorRotor0)
+  if (!this->contactSensorWheelLeft)
   {
-    gzerr << "contact_sensor [" << contactScopedNameRotor0
-          << "] not found, abort Quadcopter plugin.\n" << "\n";
+    gzerr << "contact_sensor [" << contactScopedNameWheelLeft
+          << "] not found, abort MobRob plugin.\n" << "\n";
     return;
   }
   
-  // rotor 1 contact sensor
-  std::string contactNameRotor1;
-  getSdfParam<std::string>(_sdf, "contactName", contactNameRotor0, "rotor_1_contact_sensor");
+  // right wheel contact sensor
+  std::string contactNameWheelRight;
+  getSdfParam<std::string>(_sdf, "contactName", contactNameWheelRight, "contact_sensor_wheel_right");
   /*
-  std::string contactScopedNameRotor1 = this->_world->Name()
+  std::string contactScopedNameWheelRight = this->_world->Name()
       + "::" + this->_model->GetScopedName() 
-      + "::" + contactNameRotor0;
+      + "::" + contactNameWheelRight;
   */
-    std::string contactScopedNameRotor1 = this->_world->Name()
+    std::string contactScopedNameWheelRight = this->_world->Name()
       + "::" + this->_model->GetScopedName() 
-      + "::quadcopter_takeoff_control::quadcopter::quadcopter_model::rotor_1::rotor_1_contact_sensor";
-  this->contactSensorRotor1 = std::dynamic_pointer_cast<sensors::ContactSensor>
-    (sensors::SensorManager::Instance()->GetSensor(contactScopedNameRotor1));
+      + "::MobRob::MobRob::left_wheel::contact_sensor_wheel_right";
+  this->contactSensorWheelRight = std::dynamic_pointer_cast<sensors::ContactSensor>
+    (sensors::SensorManager::Instance()->GetSensor(contactScopedNameWheelRight));
 
-  if (!this->contactSensorRotor1)
+  if (!this->contactSensorWheelRight)
   {
-    gzerr << "contact_sensor [" << contactScopedNameRotor1
-          << "] not found, abort Quadcopter plugin.\n" << "\n";
-    return;
-  }
-  
-  // rotor 2 contact sensor
-  std::string contactNameRotor2;
-  getSdfParam<std::string>(_sdf, "contactName", contactNameRotor2, "rotor_2_contact_sensor");
-  /*
-  std::string contactScopedNameRotor2 = this->_world->Name()
-      + "::" + this->_model->GetScopedName() 
-      + "::" + contactNameRotor2;
-  */
-    std::string contactScopedNameRotor2 = this->_world->Name()
-      + "::" + this->_model->GetScopedName() 
-      + "::quadcopter_takeoff_control::quadcopter::quadcopter_model::rotor_2::rotor_2_contact_sensor";
-  this->contactSensorRotor2 = std::dynamic_pointer_cast<sensors::ContactSensor>
-    (sensors::SensorManager::Instance()->GetSensor(contactScopedNameRotor2));
-
-  if (!this->contactSensorRotor2)
-  {
-    gzerr << "contact_sensor [" << contactScopedNameRotor2
-          << "] not found, abort Quadcopter plugin.\n" << "\n";
-    return;
-  }
-  
-  // rotor 3 contact sensor
-  std::string contactNameRotor3;
-  getSdfParam<std::string>(_sdf, "contactName", contactNameRotor3, "rotor_3_contact_sensor");
-  /*
-  std::string contactScopedNameRotor3 = this->_world->Name()
-      + "::" + this->_model->GetScopedName() 
-      + "::" + contactNameRotor3;
-  */
-    std::string contactScopedNameRotor3 = this->_world->Name()
-      + "::" + this->_model->GetScopedName() 
-      + "::quadcopter_takeoff_control::quadcopter::quadcopter_model::rotor_3::rotor_3_contact_sensor";
-  this->contactSensorRotor3 = std::dynamic_pointer_cast<sensors::ContactSensor>
-    (sensors::SensorManager::Instance()->GetSensor(contactScopedNameRotor3));
-
-  if (!this->contactSensorRotor3)
-  {
-    gzerr << "contact_sensor [" << contactScopedNameRotor3
-          << "] not found, abort Quadcopter plugin.\n" << "\n";
+    gzerr << "contact_sensor [" << contactScopedNameWheelRight
+          << "] not found, abort MobRob plugin.\n" << "\n";
     return;
   }
 
-  // Missed update count before we declare arduCopterOnline status false
+  // Missed update count before we declare mobrobOnline status false
   getSdfParam<int>(_sdf, "connectionTimeoutMaxCount",
     this->connectionTimeoutMaxCount, 10);
   getSdfParam<double>(_sdf, "loopRate",
@@ -413,22 +371,19 @@ void QuadcopterWorldPlugin::processSDF(sdf::ElementPtr _sdf)
 				if (randomSDF->HasElement("seed")){
 						this->resetWithRandomAngularVelocity = TRUE;
 						ignition::math::Rand::Seed(randomSDF->Get<int>("seed"));
-						this->rollLimit = randomSDF->Get<ignition::math::Vector2d>("roll");
-						this->pitchLimit = randomSDF->Get<ignition::math::Vector2d>("pitch");
-						this->yawLimit = randomSDF->Get<ignition::math::Vector2d>("yaw");
 				}
 			}
 		}
   } 
 }
 
-void QuadcopterWorldPlugin::softReset(){
+void LabWorldPlugin::softReset(){
     this->_world->ResetTime();
     this->_world->ResetEntities(gazebo::physics::Base::BASE);
 	this->_world->ResetPhysicsStates();
 }
 
-void QuadcopterWorldPlugin::loop_thread()
+void LabWorldPlugin::loop_thread()
 {
 	double msPeriod = 1000.0/this->loopRate;
 
@@ -441,7 +396,7 @@ void QuadcopterWorldPlugin::loop_thread()
 		gazebo::common::Time curTime = _world->SimTime();
 		
 		//Try reading from the socket, if a packet is
-		//available update the rotors
+		//available update the wheelMotors
 		bool received = this->ReceiveMotorCommand();
 
 		if (received){
@@ -475,7 +430,7 @@ void QuadcopterWorldPlugin::loop_thread()
 				
 			}
 		} 
-		if (this->arduCopterOnline)
+		if (this->mobrobOnline)
 		{
 			this->ApplyMotorForces((curTime - this->lastControllerUpdateTime).Double());
 		}
@@ -484,7 +439,7 @@ void QuadcopterWorldPlugin::loop_thread()
 		{
 			this->_world->Step(1);
 		}
-		if (this->arduCopterOnline)
+		if (this->mobrobOnline)
 		{
 			this->SendState();
 		}
@@ -496,7 +451,7 @@ void QuadcopterWorldPlugin::loop_thread()
   /// \param[in] _address Address to bind to.
   /// \param[in] _port Port to bind to.
   /// \return True on success.
-bool QuadcopterWorldPlugin::Bind(const char *_address, const uint16_t _port)
+bool LabWorldPlugin::Bind(const char *_address, const uint16_t _port)
   {
     struct sockaddr_in sockaddr;
     this->MakeSockAddr(_address, _port, sockaddr);
@@ -518,7 +473,7 @@ bool QuadcopterWorldPlugin::Bind(const char *_address, const uint16_t _port)
   /// \param[in] _address Socket address.
   /// \param[in] _port Socket port
   /// \param[out] _sockaddr New socket address structure.
-  void QuadcopterWorldPlugin::MakeSockAddr(const char *_address, const uint16_t _port,
+  void LabWorldPlugin::MakeSockAddr(const char *_address, const uint16_t _port,
     struct sockaddr_in &_sockaddr)
   {
     memset(&_sockaddr, 0, sizeof(_sockaddr));
@@ -536,7 +491,7 @@ bool QuadcopterWorldPlugin::Bind(const char *_address, const uint16_t _port)
   /// \param[out] _buf Buffer that receives the data.
   /// \param[in] _size Size of the buffer.
   /// \param[in] _timeoutMS Milliseconds to wait for data.
-  ssize_t QuadcopterWorldPlugin::Recv(void *_buf, const size_t _size, uint32_t _timeoutMs)
+  ssize_t LabWorldPlugin::Recv(void *_buf, const size_t _size, uint32_t _timeoutMs)
   {
     fd_set fds;
     struct timeval tv;
@@ -571,34 +526,34 @@ bool QuadcopterWorldPlugin::Bind(const char *_address, const uint16_t _port)
     #endif
   }
 /////////////////////////////////////////////////
-void QuadcopterWorldPlugin::ResetPIDs()
+void LabWorldPlugin::ResetPIDs()
 {
-  // Reset velocity PID for rotors
-  for (size_t i = 0; i < this->rotors.size(); ++i)
+  // Reset velocity PID for wheelMotors
+  for (size_t i = 0; i < this->wheelMotors.size(); ++i)
   {
-    this->rotors[i].cmd = 0;
-    // this->rotors[i].pid.Reset();
+    this->wheelMotors[i].cmd = 0;
+    // this->wheelMotors[i].pid.Reset();
   }
 }
 
 /////////////////////////////////////////////////
-void QuadcopterWorldPlugin::ApplyMotorForces(const double _dt)
+void LabWorldPlugin::ApplyMotorForces(const double _dt)
 {
-  // update velocity PID for rotors and apply force to joint
-  for (size_t i = 0; i < this->rotors.size(); ++i)
+  // update velocity PID for wheelMotors and apply force to joint
+  for (size_t i = 0; i < this->wheelMotors.size(); ++i)
   {
-    double velTarget = this->rotors[i].multiplier *
-      this->rotors[i].cmd /
-      this->rotors[i].rotorVelocitySlowdownSim;
-    double vel = this->rotors[i].joint->GetVelocity(0);
+    double velTarget = this->wheelMotors[i].multiplier *
+      this->wheelMotors[i].cmd /
+      this->wheelMotors[i].motorVelocitySlowdownSim;
+    double vel = this->wheelMotors[i].joint->GetVelocity(0);
     double error = vel - velTarget;
-    double force = this->rotors[i].pid.Update(error, _dt);
-    this->rotors[i].joint->SetForce(0, force);
+    double force = this->wheelMotors[i].pid.Update(error, _dt);
+    this->wheelMotors[i].joint->SetForce(0, force);
   }
 }
 
 /////////////////////////////////////////////////
-bool QuadcopterWorldPlugin::ReceiveMotorCommand()
+bool LabWorldPlugin::ReceiveMotorCommand()
 {
   // Added detection for whether ArduCopter is online or not.
   // If ArduCopter is detected (receive of fdm packet from someone),
@@ -612,7 +567,7 @@ bool QuadcopterWorldPlugin::ReceiveMotorCommand()
   bool commandProcessed = FALSE;
   ServoPacket pkt;
   int waitMs = 1;
-  if (this->arduCopterOnline)
+  if (this->mobrobOnline)
   {
     // increase timeout for receive once we detect a packet from
     // ArduCopter FCS.
@@ -625,7 +580,7 @@ bool QuadcopterWorldPlugin::ReceiveMotorCommand()
   }
   ssize_t recvSize = this->Recv(&pkt, sizeof(ServoPacket), waitMs);
   ssize_t expectedPktSize =
-    sizeof(pkt.motorSpeed[0])*this->rotors.size();//  + sizeof(pkt.seq);
+    sizeof(pkt.motorSpeed[0])*this->wheelMotors.size();//  + sizeof(pkt.seq);
 
   gzwarn << "ServoPacket size is " << recvSize << " and it should be " << expectedPktSize << "\n";
 
@@ -639,7 +594,7 @@ bool QuadcopterWorldPlugin::ReceiveMotorCommand()
     }
 
     gazebo::common::Time::NSleep(100);
-    if (this->arduCopterOnline)
+    if (this->mobrobOnline)
     {
       gzwarn << "Broken Quadcopter connection, count ["
              << this->connectionTimeoutCount
@@ -649,7 +604,7 @@ bool QuadcopterWorldPlugin::ReceiveMotorCommand()
         this->connectionTimeoutMaxCount)
       {
         this->connectionTimeoutCount = 0;
-        this->arduCopterOnline = false;
+        this->mobrobOnline = false;
         gzwarn << "Broken Quadcopter connection, resetting motor control.\n";
         this->ResetPIDs();
       }
@@ -658,23 +613,23 @@ bool QuadcopterWorldPlugin::ReceiveMotorCommand()
   }
   else
   {
-    if (!this->arduCopterOnline)
+    if (!this->mobrobOnline)
     {
       gzdbg << "Quadcopter controller online detected.\n";
       // made connection, set some flags
       this->connectionTimeoutCount = 0;
-      this->arduCopterOnline = true;
+      this->mobrobOnline = true;
     }
 
     //std::cout "Seq " << pkt.seq << "\n";
 
     // compute command based on requested motorSpeed
-    for (unsigned i = 0; i < this->rotors.size(); ++i)
+    for (unsigned i = 0; i < this->wheelMotors.size(); ++i)
     {
       if (i < MAX_MOTORS)
       {
         // std::cout << i << ": " << pkt.motorSpeed[i] << "\n";
-        this->rotors[i].cmd = this->rotors[i].maxRpm *
+        this->wheelMotors[i].cmd = this->wheelMotors[i].maxRpm *
           pkt.motorSpeed[i];
       }
       else
@@ -689,7 +644,7 @@ bool QuadcopterWorldPlugin::ReceiveMotorCommand()
 }
 
 /////////////////////////////////////////////////
-void QuadcopterWorldPlugin::SendState() const
+void LabWorldPlugin::SendState() const
 {
   // send_fdm
   fdmPacket pkt;
@@ -697,9 +652,9 @@ void QuadcopterWorldPlugin::SendState() const
   pkt.timestamp = this->_world->SimTime().Double();
   pkt.iter = static_cast<uint64_t> (this->_world->Iterations());
 
-  for (size_t i = 0; i < this->rotors.size(); ++i)
+  for (size_t i = 0; i < this->wheelMotors.size(); ++i)
   {
-    pkt.motorVelocity[i] = this->rotors[i].joint->GetVelocity(0);
+    pkt.motorVelocity[i] = this->wheelMotors[i].joint->GetVelocity(0);
   }
   // asssumed that the imu orientation is:
   //   x forward
@@ -721,69 +676,47 @@ void QuadcopterWorldPlugin::SendState() const
     this->imuSensor->AngularVelocity();
 
   // copy to pkt
-  pkt.imuAngularVelocityRPY[0] = angularVel.X();
-  pkt.imuAngularVelocityRPY[1] = angularVel.Y();
-  pkt.imuAngularVelocityRPY[2] = angularVel.Z();
+  pkt.imuAngularYawVelocity = angularVel.Z();
 
-  // get number of collisions with the main quad body
+  // get number of collisions with the MobRob chassis
   uint64_t collisionCount = 
-    this->contactSensor->GetCollisionCount();
+    this->contactSensorChassis->GetCollisionCount();
   std::string collisionName =
-    this->contactSensor->GetCollisionName(0);
+    this->contactSensorChassis->GetCollisionName(0);
   uint64_t collisionContactCount =
-    this->contactSensor->GetCollisionContactCount(collisionName);
-  std::map<std::string, gazebo::physics::Contact> contacts =
-    this->contactSensor->Contacts(collisionName);
+    this->contactSensorChassis->GetCollisionContactCount(collisionName);
+  std::map<std::string, gazebo::physics::Contact> contactsChassis =
+    this->contactSensorChassis->Contacts(collisionName);
 	
-  // get number of collisions with rotor 0
-  uint64_t collisionCountRotor0 = 
-    this->contactSensorRotor0->GetCollisionCount();
-  std::string collisionNameRotor0 =
-    this->contactSensorRotor0->GetCollisionName(0);
-  uint64_t collisionContactCountRotor0 =
-    this->contactSensorRotor0->GetCollisionContactCount(collisionNameRotor0);
-  std::map<std::string, gazebo::physics::Contact> contactsRotor0 =
-    this->contactSensorRotor0->Contacts(collisionNameRotor0);
+  // get number of collisions with the left wheel
+  uint64_t collisionCountWheelLeft = 
+    this->contactSensorWheelLeft->GetCollisionCount();
+  std::string collisionNameWheelLeft =
+    this->contactSensorWheelLeft->GetCollisionName(0);
+  uint64_t collisionContactCountWheelLeft =
+    this->contactSensorWheelLeft->GetCollisionContactCount(collisionNameWheelLeft);
+  std::map<std::string, gazebo::physics::Contact> contactsWheelLeft =
+    this->contactSensorWheelLeft->Contacts(collisionNameWheelLeft);
 	
-  // get number of collisions with rotor 1
-  uint64_t collisionCountRotor1 = 
-    this->contactSensorRotor1->GetCollisionCount();
-  std::string collisionNameRotor1 =
-    this->contactSensorRotor1->GetCollisionName(0);
-  uint64_t collisionContactCountRotor1 =
-    this->contactSensorRotor1->GetCollisionContactCount(collisionNameRotor1);
-  std::map<std::string, gazebo::physics::Contact> contactsRotor1 =
-    this->contactSensorRotor1->Contacts(collisionNameRotor1);
-
-  // get number of collisions with rotor 2
-  uint64_t collisionCountRotor2 = 
-    this->contactSensorRotor2->GetCollisionCount();
-  std::string collisionNameRotor2 =
-    this->contactSensorRotor2->GetCollisionName(0);
-  uint64_t collisionContactCountRotor2 =
-    this->contactSensorRotor2->GetCollisionContactCount(collisionNameRotor2);
-  std::map<std::string, gazebo::physics::Contact> contactsRotor2 =
-    this->contactSensorRotor2->Contacts(collisionNameRotor2);
-	
-  // get number of collisions with rotor 3
-  uint64_t collisionCountRotor3 = 
-    this->contactSensorRotor3->GetCollisionCount();
-  std::string collisionNameRotor3 =
-    this->contactSensorRotor3->GetCollisionName(0);
-  uint64_t collisionContactCountRotor3 =
-    this->contactSensorRotor3->GetCollisionContactCount(collisionNameRotor3);
-  std::map<std::string, gazebo::physics::Contact> contactsRotor3 =
-    this->contactSensorRotor3->Contacts(collisionNameRotor3);
+  // get number of collisions with the right wheel
+  uint64_t collisionCountWheelRight = 
+    this->contactSensorWheelRight->GetCollisionCount();
+  std::string collisionNameWheelRight =
+    this->contactSensorWheelRight->GetCollisionName(0);
+  uint64_t collisionContactCountWheelRight =
+    this->contactSensorWheelRight->GetCollisionContactCount(collisionNameWheelRight);
+  std::map<std::string, gazebo::physics::Contact> contactsWheelRight =
+    this->contactSensorWheelRight->Contacts(collisionNameWheelRight);
 
   // copy to pkt
-  pkt.collisionCount = contacts.size() + contactsRotor0.size() + contactsRotor1.size() + contactsRotor2.size() + contactsRotor3.size();
+  pkt.collisionCount = contactsChassis.size() + contactsWheelLeft.size() + contactsWheelRight.size();
 
  //if (pkt.iter == 0){
   //}
 
 
   // get inertial pose and velocity
-  // position of the quadrotor in world frame
+  // position of the quadwheelMotor in world frame
   // this position is used to calcualte bearing and distance
   // from starting location, then use that to update gps position.
   // The algorithm looks something like below (from ardupilot helper
@@ -795,7 +728,7 @@ void QuadcopterWorldPlugin::SendState() const
   // where xyz is in the NED directions.
   // Gazebo world xyz is assumed to be N, -E, -D, so flip some stuff
   // around.
-  // orientation of the quadrotor in world NED frame -
+  // orientation of the quadwheelMotor in world NED frame -
   // assuming the world NED frame has xyz mapped to NED,
   // imuLink is NED - z down
 
@@ -823,7 +756,7 @@ void QuadcopterWorldPlugin::SendState() const
   pkt.positionXYZ[2] = NEDToModel.Pos().Z();
 
   // imuOrientationQuat is the rotation from world NED frame
-  // to the quadrotor frame.
+  // to the quadwheelMotor frame.
   pkt.imuOrientationQuat[0] = NEDToModel.Rot().W();
   pkt.imuOrientationQuat[1] = NEDToModel.Rot().X();
   pkt.imuOrientationQuat[2] = NEDToModel.Rot().Y();
@@ -868,11 +801,11 @@ void QuadcopterWorldPlugin::SendState() const
 }
 
   /// \brief Constructor
-Rotor::Rotor()
+WheelMotor::WheelMotor()
 {
     // most of these coefficients are not used yet.
 	/*
-    this->rotorVelocitySlowdownSim = this->kDefaultRotorVelocitySlowdownSim;
+    this->motorVelocitySlowdownSim = this->kDefaultmotorVelocitySlowdownSim;
     this->frequencyCutoff = this->kDefaultFrequencyCutoff;
     this->samplingRate = this->kDefaultSamplingRate;
 	*/

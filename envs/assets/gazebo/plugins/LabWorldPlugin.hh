@@ -14,8 +14,8 @@
  * limitations under the License.
  *
 */
-#ifndef GAZEBO_PLUGINS_QUADCOPTERWORLDPLUGIN_HH_
-#define GAZEBO_PLUGINS_QUADCOPTERWORLDPLUGIN_HH_
+#ifndef GAZEBO_PLUGINS_LABWORLDPLUGIN_HH_
+#define GAZEBO_PLUGINS_LABWORLDPLUGIN_HH_
 
 #include <sdf/sdf.hh>
 #include <gazebo/common/common.hh>
@@ -47,8 +47,8 @@ struct fdmPacket
   /// \brief packet timestamp
   double timestamp;
 
-  /// \brief IMU angular velocity
-  double imuAngularVelocityRPY[3];
+  /// \brief IMU angular yaw velocity
+  double imuAngularYawVelocity;
 
   /// \brief IMU linear acceleration
   double imuLinearAccelerationXYZ[3];
@@ -62,9 +62,9 @@ struct fdmPacket
   /// \brief Model position in NED frame
   double positionXYZ[3];
 
-  double motorVelocity[4];
+  double motorVelocity[2];
 
- // \brief Number of collisions with main quad body
+ // \brief Number of collisions with main mobrob body
   uint64_t collisionCount;
 
  // uint32_t iter;
@@ -72,14 +72,14 @@ struct fdmPacket
   
 //  unsigned int seq;
 };
-  class Rotor
+  class WheelMotor
  {
-	 public: Rotor();
+	 public: WheelMotor();
 
 	  /// \brief rotor id
 	  public: int id = 0;
 
-	  /// \brief Max rotor propeller RPM.
+	  /// \brief Max wheel motor RPM.
 	  public: double maxRpm = 838.0;
 
 	  /// \brief Next command to be applied to the propeller
@@ -88,29 +88,29 @@ struct fdmPacket
 	  /// \brief Velocity PID for motor control
 	  public: common::PID pid;
 
-	  /// \brief Control propeller joint.
+	  /// \brief Control wheel joint.
 	  public: std::string jointName;
 
-	  /// \brief Control propeller joint.
+	  /// \brief Control wheel joint.
 	  public: physics::JointPtr joint;
 
-	  /// \brief direction multiplier for this rotor
+	  /// \brief direction multiplier for this motor
 	  public: double multiplier = 1;
 
 	  /// \brief unused coefficients
-	  public: double rotorVelocitySlowdownSim = 10.0;
+	  public: double motorVelocitySlowdownSim = 10.0;
 	  public: double frequencyCutoff = 5.0;
 	  public: double samplingRate = 0.2;
 	  public: ignition::math::OnePole<double> velocityFilter;
 
  };
-  class QuadcopterWorldPlugin : public WorldPlugin
+  class LabWorldPlugin : public WorldPlugin
   {
     /// \brief Constructor.
-    public: QuadcopterWorldPlugin();
+    public: LabWorldPlugin();
 
     /// \brief Destructor.
-    public: ~QuadcopterWorldPlugin();
+    public: ~LabWorldPlugin();
 
     // Documentation Inherited.
     public: void Load(physics::WorldPtr _world, sdf::ElementPtr _sdf);
@@ -143,10 +143,6 @@ struct fdmPacket
 
 	private: bool resetWithRandomAngularVelocity;
 	private: int randomSeed;
-	private: ignition::math::Vector2d rollLimit;
-	private: ignition::math::Vector2d pitchLimit;
-	private: ignition::math::Vector2d yawLimit;
-
 
 	public: physics::WorldPtr _world;
 	
@@ -155,8 +151,8 @@ struct fdmPacket
 	/// \brief Pointer to the update event connection.
 	public: event::ConnectionPtr updateConnection;
 
-	/// \brief array of propellers
-	public: std::vector<Rotor> rotors;
+	/// \brief array of wheel motors
+	public: std::vector<WheelMotor> wheelMotors;
 
 	/// \brief keep track of controller update sim-time.
 	public: gazebo::common::Time lastControllerUpdateTime;
@@ -174,22 +170,20 @@ struct fdmPacket
 	/// \brief Pointer to an IMU sensor
 	public: sensors::ImuSensorPtr imuSensor;
 
-		/// \brief Pointer to an contact sensor
-	public: sensors::ContactSensorPtr contactSensor;
-	public: sensors::ContactSensorPtr contactSensorRotor0;
-	public: sensors::ContactSensorPtr contactSensorRotor1;
-	public: sensors::ContactSensorPtr contactSensorRotor2;
-	public: sensors::ContactSensorPtr contactSensorRotor3;
+		/// \brief Pointer to contact sensors
+	public: sensors::ContactSensorPtr contactSensorChassis;
+	public: sensors::ContactSensorPtr contactSensorWheelLeft;
+	public: sensors::ContactSensorPtr contactSensorWheelRight;
 	
-	/// \brief false before ardupilot controller is online
+	/// \brief false before mobrob controller is online
 	/// to allow gazebo to continue without waiting
-	public: bool arduCopterOnline;
+	public: bool mobrobOnline;
 
-	/// \brief number of times ArduCotper skips update
+	/// \brief number of times MobRob skips update
 	public: int connectionTimeoutCount;
 
-	/// \brief number of times ArduCotper skips update
-	/// before marking Quadcopter offline
+	/// \brief number of times MobROb skips update
+	/// before marking MobROb offline
 	public: int connectionTimeoutMaxCount;
   };
 }
